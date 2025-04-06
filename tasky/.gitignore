@@ -1,0 +1,43 @@
+# .gitignore
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore environment files
+.env
+
+# Ignore virtual environment directories
+venv/
+env/
+client/
+# Ignore database files
+*.sqlite3
+
+
+git.txt
+token_handle_on_frontend.txt
+
+# Ignore migration files
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Ignore node modules
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore macOS files
+.DS_Store
+
+# Ignore build artifacts
+build/
+dist/
