@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import BaseUserManager
 import uuid
+from django.utils import timezone
+from datetime import timedelta
 import os
 
 def company_image_upload_path(instance: 'Company', filename: str) -> str:
@@ -116,3 +118,23 @@ class UserInfo(models.Model):
     otp = models.CharField(max_length=6,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def set_online(self):
+        self.status = self.StatusChoices.ONLINE
+        self.save()
+    
+    def set_offline(self):
+        self.status = self.StatusChoices.OFFLINE
+        self.save()
+    
+    def get_todays_duration(self) :
+        from attendance.models import LoginLogout
+        from django.db.models import Sum
+        today = timezone.now().date()
+        records = LoginLogout.objects.filter(
+            user=self,
+            date=today,
+            duration__isnull=False
+        )
+        total = records.aggregate(total=Sum('duration'))['total']
+        return total or timedelta(0)
