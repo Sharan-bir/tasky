@@ -283,7 +283,9 @@ class AuthViewSet(viewsets.ViewSet):
         email = serializer.validated_data['email']
         user = User.objects.get(email=email)
         
-        if user.info.otp:
+        cache_key = f"otp_{user.id}"
+        cached_otp = cache.get(cache_key)
+        if cached_otp is not None:
             return Response(
             {'detail': 'An active OTP already exists. Please wait or use it.'},
             status=status.HTTP_400_BAD_REQUEST
