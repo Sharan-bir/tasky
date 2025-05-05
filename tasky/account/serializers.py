@@ -40,12 +40,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        data = super().validate(attrs)
-        data['user_id'] = self.user.id
-        data['company_id'] = self.user.company.id 
-        data['company_name'] = self.user.company.name
-        data['role'] = self.user.role
-        data['domain'] = self.user.domain.id
+        data = super().validate(attrs)  # Generates tokens
+        user = self.user
+        data.update({
+        'user_id': user.id,
+        'email': user.email,
+        'company_id': user.company.id if user.company else None,
+        'company_name': user.company.name if user.company else None,
+        'role': user.role,
+        'domain': user.domain.id if user.domain else None,
+        })
         return data
     
 class ForgotPasswordSerializer(serializers.Serializer):

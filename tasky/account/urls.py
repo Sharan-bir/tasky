@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from leave.views import LeaveRequestViewSet
 from account.views import (
     CompanyViewSet, DomainViewSet,
     UserViewSet, AuthViewSet, CustomTokenObtainPairView
@@ -15,6 +16,9 @@ router.register(r'users', UserViewSet, basename='user')
 
 # Attendance
 router.register(r'attendance', AttendanceViewSet, basename='attendance')
+
+# Leave
+router.register(r'leave-requests', LeaveRequestViewSet, basename='leave-request')
 
 urlpatterns = [
     path('', include(router.urls)),

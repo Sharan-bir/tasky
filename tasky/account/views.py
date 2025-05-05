@@ -8,10 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.conf import settings
 import random
-import string
-from typing import Dict, Any
+import string,datetime
 from django.db.models import Q
-
+from django.core.cache import cache
 from account.models import User, Company,Domain, UserInfo
 from account.serializers import (
     CompanySerializer, DomainSerializer,UserInfoSerializer,
@@ -146,7 +145,18 @@ class UserViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = UserSerializer(queryset, many=True)
-        return Response(serializer.data)
+        custom_data = []
+        for user in serializer.data:
+            custom_data.append({
+                'id': user['id'],
+                'email': user['email'],
+                'role': user['role'],
+                'address': user['info']['address'] if user.get('info') else None,
+                'status': user['info']['status'] if user.get('info') else None,
+            })
+
+        return Response(custom_data)
+        # return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         if request.user.role not in ['Company_owner', 'Project_manager']:
@@ -272,19 +282,27 @@ class AuthViewSet(viewsets.ViewSet):
         
         email = serializer.validated_data['email']
         user = User.objects.get(email=email)
+        
+        if user.info.otp:
+            return Response(
+            {'detail': 'An active OTP already exists. Please wait or use it.'},
+            status=status.HTTP_400_BAD_REQUEST
+            )
 
         otp = ''.join(random.choices(string.digits, k=6))
-        
-        user.info.otp = otp
-        user.info.save()
-        
         send_mail(
             'Password Reset OTP',
             f'Your OTP for password reset is: {otp}',
             settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
+            [email],fail_silently=False
         )
+        user.info.otp = otp
+        user.info.save()
+        # Store OTP in cache with 60s expiry (key: "otp_{user_id}")
+        cache_key = f"otp_{user.id}"
+        cache.set(cache_key, otp, 60)  # 60 seconds = 1 minute
+
+        
         return Response({'detail': 'OTP sent to your email.'}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny], authentication_classes=[])
@@ -302,7 +320,18 @@ class AuthViewSet(viewsets.ViewSet):
                 {'detail': 'Invalid OTP.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
+        
+        # Check if OTP is expired (cache is cleared)
+        cache_key = f"otp_{user_info.user.id}"
+        cached_otp = cache.get(cache_key)
+        if cached_otp is None:
+        # OTP expired → Clear it from DB
+            user_info.otp = ''
+            user_info.save()
+            return Response(
+                {'detail': 'OTP expired. Please request a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+        )
         user = user_info.user
         user.set_password(new_password)
         user.save()
