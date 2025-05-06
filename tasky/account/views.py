@@ -145,18 +145,18 @@ class UserViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = UserSerializer(queryset, many=True)
-        custom_data = []
-        for user in serializer.data:
-            custom_data.append({
-                'id': user['id'],
-                'email': user['email'],
-                'role': user['role'],
-                'address': user['info']['address'] if user.get('info') else None,
-                'status': user['info']['status'] if user.get('info') else None,
-            })
+        # custom_data = []
+        # for user in serializer.data:
+        #     custom_data.append({
+        #         'id': user['id'],
+        #         'email': user['email'],
+        #         'role': user['role'],
+        #         'address': user['info']['address'] if user.get('info') else None,
+        #         'status': user['info']['status'] if user.get('info') else None,
+        #     })
 
-        return Response(custom_data)
-        # return Response(serializer.data)
+        # return Response(custom_data)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         if request.user.role not in ['Company_owner', 'Project_manager']:
