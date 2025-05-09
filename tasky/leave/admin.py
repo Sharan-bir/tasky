@@ -13,7 +13,7 @@ class LeaveRequestAdmin(admin.ModelAdmin):
             'fields': ('user', 'start_date', 'end_date')
         }),
         ('Leave Details', {
-            'fields': ('reason', 'description')
+            'fields': ('reason', 'description','attachment')
         }),
         ('Approval Information', {
             'fields': ('status', 'reviewed_by', 'reviewed_at')

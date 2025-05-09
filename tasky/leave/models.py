@@ -13,6 +13,7 @@ class LeaveRequest(models.Model):
     end_date = models.DateField()
     reason = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
+    attachment = models.FileField(upload_to='leave_attachments/', null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_leave_requests')
     reviewed_at = models.DateTimeField(null=True, blank=True)
