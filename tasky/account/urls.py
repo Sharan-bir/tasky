@@ -7,6 +7,11 @@ from account.views import (
     UserViewSet, AuthViewSet, CustomTokenObtainPairView
 )
 from attendance.views import AttendanceViewSet
+from tasks.views import (
+    ProjectViewSet, ProjectTeamViewSet, ModuleViewSet,
+    TaskViewSet, TaskHistoryViewSet, TaskCommentViewSet
+)
+
 
 router = DefaultRouter()
 # Account
@@ -19,6 +24,14 @@ router.register(r'attendance', AttendanceViewSet, basename='attendance')
 
 # Leave
 router.register(r'leave-requests', LeaveRequestViewSet, basename='leave-request')
+
+# Tasks
+router.register(r'projects', ProjectViewSet)
+router.register(r'project-teams', ProjectTeamViewSet)
+router.register(r'modules', ModuleViewSet)
+router.register(r'tasks', TaskViewSet)
+router.register(r'task-history', TaskHistoryViewSet,basename='task-history')
+router.register(r'task-comments', TaskCommentViewSet,basename='task-comments')
 
 urlpatterns = [
     path('', include(router.urls)),

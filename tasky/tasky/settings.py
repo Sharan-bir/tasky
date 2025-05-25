@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'account',
     'attendance',
     'leave',
+    'tasks',
 ]
 
 MIDDLEWARE = [
@@ -36,6 +37,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -107,6 +109,8 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
 AUTH_USER_MODEL = 'account.User'
